@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Local Broker</title>
+  <style>
+    .county-search-widget {
+      font-family: "Open Sans", sans-serif;
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 2rem;
+      box-shadow: inset 0 0 0 1px #ccc;
+      width: 100%;
+      max-width: 360px;
+      height: 640px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-header {
+      text-align: center;
+      padding: 1rem 0;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      border-radius: 2rem 2rem 0 0;
+      font-weight: bold;
+      color: #5b7dbc;
+    }
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .bot-message, .user-message {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .bot-message {
+      background: #fff;
+      align-self: flex-start;
+    }
+    .user-message {
+      background: #5b7dbc;
+      align-self: flex-end;
+      color:#ffffff;
+    }
+    .county-search-box {
+      padding: 1rem;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      border-radius: 0 0 2rem 2rem;
+    }
+    .county-search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 2rem;
+      font-size: 1rem;
+    }
+    .county-suggestions {
+      position: absolute;
+      bottom: 70px;
+      left: 1rem;
+      right: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      z-index: 10;
+      border-radius: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .county-suggestion {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+    }
+    .county-suggestion:hover {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="county-search-widget">
+    <div class="phone-header">Connect Experts</div>
+    <div class="chat-body" id="chat-body">
+      <div class="bot-message">Hi there 👋 Where are you looking to move?</div>
+    </div>
+    <div class="county-search-box">
+      <input type="text" id="search" placeholder="Enter your town or county...">
+      <div class="county-suggestions" id="suggestions"></div>
+    </div>
+  </div>
+
+  <script>
+    const counties = {
+      "hampshire": "https://connectexperts.co.uk/why-move-to-hampshire/",
+      "cambridgeshire": "https://connectexperts.co.uk/why-move-to-cambridgeshire",
+      "essex": "https://connectexperts.co.uk/why-move-to-essex/",
+      "london": "https://connectexperts.co.uk/why-move-to-london/",
+      "berkshire": "https://connectexperts.co.uk/why-move-to-berkshire/",
+      "kent": "https://connectexperts.co.uk/why-move-to-kent/",
+      "hertfordshire": "https://connectexperts.co.uk/why-move-to-hertfordshire",
+      "bedfordshire": "https://connectexperts.co.uk/why-move-to-bedfordshire/",
+      "buckinghamshire": "https://connectexperts.co.uk/why-move-to-buckinghamshire/",
+      "cheshire": "https://connectexperts.co.uk/why-move-to-cheshire/",
+      "cleveland": "https://connectexperts.co.uk/why-move-to-cleveland/",
+      "cornwall": "https://connectexperts.co.uk/why-move-to-cornwall/",
+      "cumbria": "https://connectexperts.co.uk/why-move-to-cumbria/",
+      "derbyshire": "https://connectexperts.co.uk/why-move-to-derbyshire/",
+      "dover": "https://connectexperts.co.uk/why-move-to-dover",
+      "durham": "https://connectexperts.co.uk/why-move-to-durham/",
+      "east sussex": "https://connectexperts.co.uk/why-move-to-east-sussex",
+      "gloucestershire": "https://connectexperts.co.uk/why-move-to-gloucestershire/",
+      "greater manchester": "https://connectexperts.co.uk/why-move-to-greater-manchester/",
+      "lancashire": "https://connectexperts.co.uk/why-move-to-lancashire/",
+      "leicestershire": "https://connectexperts.co.uk/why-move-to-leicestershire/",
+      "lincolnshire": "https://connectexperts.co.uk/why-move-to-lincolnshire/",
+      "merseyside": "https://connectexperts.co.uk/why-move-to-merseyside/",
+      "norfolk": "https://connectexperts.co.uk/why-move-to-northfolk/",
+      "north yorkshire": "https://connectexperts.co.uk/why-move-to-north-yorkshire/",
+      "northamptonshire": "https://connectexperts.co.uk/why-move-to-northamptonshire/",
+      "northumberland": "https://connectexperts.co.uk/why-move-to-northumberland/",
+      "nottinghamshire": "https://connectexperts.co.uk/why-move-to-nottinghamshire/",
+      "oxfordshire": "https://connectexperts.co.uk/why-move-oxfordshire/",
+      "shropshire": "https://connectexperts.co.uk/why-move-to-shropshire/",
+      "somerset": "https://connectexperts.co.uk/why-move-to-somerset",
+      "south yorkshire": "https://connectexperts.co.uk/why-move-to-south-yorkshire/",
+      "staffordshire": "https://connectexperts.co.uk/why-move-to-staffordshire",
+      "suffolk": "https://connectexperts.co.uk/why-move-to-suffolk",
+      "surrey": "https://connectexperts.co.uk/why-move-to-surrey/",
+      "tyne and wear": "https://connectexperts.co.uk/why-move-to-tyne-and-wear/",
+      "warwickshire": "https://connectexperts.co.uk/why-move-to-warwickshire/",
+      "west yorkshire": "https://connectexperts.co.uk/why-move-to-west-yorkshire/",
+      "west sussex": "https://connectexperts.co.uk/why-move-to-west-sussex/",
+      "monmouthshire": "https://connectexperts.co.uk/why-move-to-monmouthshire/",
+      "glamorgan": "https://connectexperts.co.uk/why-move-to-glamorgan/",
+      "county down": "https://connectexperts.co.uk/why-move-to-county-down/",
+      "west midlands": "https://connectexperts.co.uk/why-move-to-west-midlands/",
+      "wiltshire": "https://connectexperts.co.uk/why-move-to-wiltshire/"
+    };
+
+    const searchInput = document.getElementById('search');
+    const suggestionsBox = document.getElementById('suggestions');
+    const chatBody = document.getElementById('chat-body');
+
+    searchInput.addEventListener('input', () => {
+      const input = searchInput.value.toLowerCase();
+      suggestionsBox.innerHTML = '';
+      if (input.length < 1) return;
+      const matches = Object.keys(counties).filter(county => county.includes(input));
+      matches.forEach(match => {
+        const div = document.createElement('div');
+        div.classList.add('county-suggestion');
+        div.textContent = match.charAt(0).toUpperCase() + match.slice(1);
+        div.addEventListener('click', () => {
+          const userMessage = document.createElement('div');
+          userMessage.classList.add('user-message');
+          userMessage.textContent = match.charAt(0).toUpperCase() + match.slice(1);
+          chatBody.appendChild(userMessage);
+
+          const botMessage = document.createElement('div');
+          botMessage.classList.add('bot-message');
+          botMessage.innerHTML = `Awesome! Here’s what we have for <strong>${match.charAt(0).toUpperCase() + match.slice(1)}</strong>.`;
+          chatBody.appendChild(botMessage);
+
+          window.setTimeout(() => {
+            window.location.href = counties[match];
+          }, 1200);
+        });
+        suggestionsBox.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
