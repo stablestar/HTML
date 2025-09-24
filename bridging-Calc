@@ -1,0 +1,38 @@
+<!-- Bridging Calculator Preview -->
+<div style="background-color: #F3EBE3; padding: 2rem; border-radius: 8px; max-width: 400px; margin: auto; font-family: sans-serif;">
+    <h2 style="color: #333;">Bridging Calculator</h2>
+    <form id="bridgingForm">
+        <label for="propertyValue" style="display:block; margin-bottom:8px;">Property Value (£):</label>
+        <input type="number" id="propertyValue" name="propertyValue" style="width:100%; padding:8px; margin-bottom:16px; border:1px solid #ccc; border-radius:4px; background:#fff;">
+
+        <label for="loanAmount" style="display:block; margin-bottom:8px;">Loan Amount (£):</label>
+        <input type="number" id="loanAmount" name="loanAmount" style="width:100%; padding:8px; margin-bottom:16px; border:1px solid #ccc; border-radius:4px; background:#fff;">
+
+        <label for="term" style="display:block; margin-bottom:8px;">Term (months):</label>
+        <input type="number" id="term" name="term" style="width:100%; padding:8px; margin-bottom:16px; border:1px solid #ccc; border-radius:4px; background:#fff;">
+
+        <button type="button" id="calculateBtn" style="background-color:#333; color:#F3EBE3; padding:10px 20px; border:none; border-radius:4px; cursor:pointer;">Calculate</button>
+    </form>
+    <div id="result" style="margin-top:20px; color:#333;"></div>
+</div>
+<script>
+document.getElementById('calculateBtn').addEventListener('click', function() {
+    var propertyValue = parseFloat(document.getElementById('propertyValue').value);
+    var loanAmount = parseFloat(document.getElementById('loanAmount').value);
+    var term = parseInt(document.getElementById('term').value);
+
+    if (isNaN(propertyValue) || isNaN(loanAmount) || isNaN(term) || propertyValue <= 0 || loanAmount <= 0 || term <= 0) {
+        document.getElementById('result').innerHTML = "Please enter valid values for all fields.";
+        return;
+    }
+
+    // Example logic: Interest rate 0.8% per month
+    var monthlyRate = 0.008;
+    var totalInterest = loanAmount * monthlyRate * term;
+    var totalRepayment = loanAmount + totalInterest;
+
+    document.getElementById('result').innerHTML = 
+        "<strong>Total Interest:</strong> £" + totalInterest.toFixed(2) + "<br>" +
+        "<strong>Total Repayment:</strong> £" + totalRepayment.toFixed(2);
+});
+</script>
